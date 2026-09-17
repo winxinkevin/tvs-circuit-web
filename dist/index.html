@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="交互式 TVS 应用电路示意图与应用环境速查。" />
+    <title>TVS Circuit Explorer</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b1f33'/%3E%3Cpath d='M5 16h7l3-7 3 14 3-7h6' fill='none' stroke='%234dd7b1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true">TVS</div>
+      <div>
+        <h1>TVS Circuit Explorer</h1>
+        <p>应用电路与环境速查</p>
+      </div>
+      <div class="status"><span></span> Web schematic</div>
+    </header>
+
+    <main class="workspace">
+      <aside class="library" aria-label="应用场景列表">
+        <div class="section-label">应用场景</div>
+        <label class="search">
+          <span aria-hidden="true">⌕</span>
+          <input id="search" type="search" placeholder="搜索接口或设备" autocomplete="off" />
+        </label>
+        <div id="circuit-list" class="circuit-list"></div>
+      </aside>
+
+      <section class="stage" aria-live="polite">
+        <div class="stage-head">
+          <div>
+            <div id="eyebrow" class="eyebrow"></div>
+            <h2 id="circuit-title"></h2>
+          </div>
+          <div class="legend">
+            <span><i class="line normal"></i>正常路径</span>
+            <span><i class="line surge"></i>瞬态路径</span>
+          </div>
+        </div>
+
+        <div class="canvas-shell">
+          <div class="canvas-toolbar">
+            <button id="toggle-surge" class="toggle active" type="button" aria-pressed="true">
+              <span></span>显示浪涌路径
+            </button>
+            <button id="reset-view" class="quiet-button" type="button">复位视图</button>
+          </div>
+          <div id="schematic" class="schematic" role="img" aria-label="电路连接示意图"></div>
+          <p class="canvas-note">提示：可拖动查看，滚轮或双指缩放；点击器件查看说明。</p>
+        </div>
+
+        <div class="flow-strip">
+          <div class="flow-step"><b>1</b><span>瞬态从接口进入</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><b>2</b><span>TVS 快速导通</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><b>3</b><span>电流旁路至地</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><b>4</b><span>后级电路受保护</span></div>
+        </div>
+      </section>
+
+      <aside class="details">
+        <div class="section-label">场景备注</div>
+        <section class="detail-block primary">
+          <span class="detail-kicker">适用设备</span>
+          <h3 id="application"></h3>
+          <p id="summary"></p>
+        </section>
+        <section class="detail-block">
+          <h4>工作环境</h4>
+          <div id="environment" class="tags"></div>
+        </section>
+        <section class="detail-block metrics">
+          <h4>典型条件</h4>
+          <dl id="metrics"></dl>
+        </section>
+        <section class="detail-block caution">
+          <h4>设计提醒</h4>
+          <p id="caution"></p>
+        </section>
+        <section id="component-note" class="component-note" hidden>
+          <button id="close-note" type="button" aria-label="关闭器件说明">×</button>
+          <span>器件说明</span>
+          <h4 id="component-name"></h4>
+          <p id="component-description"></p>
+        </section>
+      </aside>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
