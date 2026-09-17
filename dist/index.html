@@ -42,9 +42,10 @@
 
         <div class="canvas-shell">
           <div class="canvas-toolbar">
-            <button id="toggle-surge" class="toggle active" type="button" aria-pressed="true">
-              <span></span>显示浪涌路径
-            </button>
+            <div class="view-switch" role="group" aria-label="工作状态">
+              <button id="normal-view" type="button">正常工作</button>
+              <button id="toggle-surge" class="active" type="button" aria-pressed="true">瞬态应力</button>
+            </div>
             <button id="reset-view" class="quiet-button" type="button">复位视图</button>
           </div>
           <div id="schematic" class="schematic" role="img" aria-label="电路连接示意图"></div>
@@ -80,6 +81,20 @@
         <section class="detail-block caution">
           <h4>设计提醒</h4>
           <p id="caution"></p>
+        </section>
+        <section class="detail-block engineering-block">
+          <div class="detail-heading"><h4>TVS 选型窗口</h4><span>Preliminary</span></div>
+          <div id="selection-grid" class="selection-grid"></div>
+          <p id="selection-note" class="engineering-note"></p>
+        </section>
+        <section class="detail-block engineering-block">
+          <div class="detail-heading"><h4>技术应力预算</h4><span id="stress-status"></span></div>
+          <div id="stress-bars" class="stress-bars"></div>
+          <div id="equation" class="equation"></div>
+        </section>
+        <section class="detail-block engineering-block">
+          <h4>后级拓扑与保护边界</h4>
+          <ol id="topology-list" class="topology-list"></ol>
         </section>
         <section id="component-note" class="component-note" hidden>
           <button id="close-note" type="button" aria-label="关闭器件说明">×</button>

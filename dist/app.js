@@ -108,6 +108,61 @@ const descriptions = {
   switch: "负责开关或热插拔控制的 MOSFET，是浪涌和感性反冲的重点保护对象。"
 };
 
+const engineering = {
+  "24v-input": {
+    selection: [["VRWM", "33–36 V"], ["VBR", "≈ 37–40 V"], ["目标 VC", "≤ 55 V @ IPP"], ["IPP / PPP", "由测试脉冲反算"], ["极性", "单向优先"], ["封装", "SMB/SMC 级起评"]],
+    selectionNote: "示例窗口假设 24 V 工业母线最高持续电压约 30 V；最终值必须按电源容差、负载突降和 DC/DC 绝对最大值收敛。",
+    stress: [["稳态裕量", 72, "30 / 33 V", "warn"], ["钳位裕量", 78, "55 / 60 V", "warn"], ["脉冲功率", 58, "估算", ""], ["PCB 过冲", 42, "L·di/dt", ""]],
+    equation: "IPP ≈ (VSURGE − VC) / RSOURCE\nVIC,PK ≈ VC + LTRACE · di/dt",
+    topology: [["入口与故障隔离", "J1 → Fuse/PTC → 反接 MOSFET"], ["瞬态钳位", "TVS 接在受保护电源轨与 Power GND 之间"], ["噪声滤波", "共模/差模电感与输入电容构成 EMI 滤波"], ["后级功率链", "Hot-swap / eFuse → DC/DC → 5 V / 3.3 V rails"]],
+    nodes: [["connector","J1","24V IN",70,210],["fuse","F1","Fuse",205,210],["switch","Q1","Reverse FET",350,210],["tvs","D1","TVS 33–36V",470,390],["filter","L1","CM/DM Filter",535,210],["switch","U1","eFuse",700,210],["load","U2","Buck DC/DC",850,210],["load","LOAD","5V / 3V3",1010,210]],
+    wires: [[[115,210],[160,210]],[[250,210],[300,210]],[[400,210],[485,210]],[[585,210],[650,210]],[[750,210],[800,210]],[[900,210],[960,210]],[[470,210],[470,350]],[[470,430],[470,495]]],
+    surge: [[35,160],[90,160],[90,210],[470,210],[470,485]], ground:[470,495], boundary:[610,130,460,170]
+  },
+  rs485: {
+    selection: [["VRWM", "≥ 总线故障电压"], ["方向", "双向阵列"], ["目标 VC", "< PHY Abs Max"], ["CJ", "按波特率/线长"], ["IPP", "按 IEC 等级"], ["通道", "A/B 对称"]],
+    selectionNote: "不能只按 ±差分信号幅度选 VRWM；还要覆盖收发器共模范围、误接电源和偏置网络。低电容与低动态电阻需要同时比较。",
+    stress: [["共模窗口", 68, "待核验", "warn"], ["差分残压", 62, "PHY 限值", ""], ["结电容", 46, "SI 影响", ""], ["浪涌能量", 74, "耦合相关", "warn"]],
+    equation: "VC,SYSTEM = VC,TVS + LPATH · di/dt\nVDIFF = V(A) − V(B)",
+    topology: [["现场入口", "Shield/RJ45/Terminal → 一级钳位"], ["信号调理", "串联阻抗 → CMC → 120 Ω / split termination"], ["通信前端", "RS485 transceiver → Digital isolator"], ["系统侧", "Isolated DC/DC + MCU / PLC controller"]],
+    nodes: [["connector","J1","A / B / SHLD",65,210],["tvs","D1","TVS Array",215,405],["resistor","R1/2","Pulse R",250,210],["filter","L1","CMC",410,210],["resistor","RT","120Ω Split",545,405],["load","U1","RS485 PHY",610,210],["load","U2","Digital ISO",780,210],["load","U3","MCU / PLC",960,210]],
+    wires: [[[110,190],[200,190]],[[110,230],[200,230]],[[300,190],[360,190]],[[300,230],[360,230]],[[460,190],[560,190]],[[460,230],[560,230]],[[660,210],[730,210]],[[830,210],[910,210]],[[215,210],[215,365]],[[545,210],[545,365]],[[215,445],[215,500]],[[545,445],[545,500]]],
+    surge: [[30,150],[85,150],[85,190],[215,190],[215,490]], ground:[215,500], boundary:[555,125,465,175]
+  },
+  can: {
+    selection: [["VRWM", "覆盖 CAN fault"], ["方向", "双向阵列"], ["目标 VC", "低于 PHY 限值"], ["CJ", "CAN-FD 更严格"], ["IPP", "按 ISO/IEC 脉冲"], ["AEC-Q", "车载场景要求"]],
+    selectionNote: "经典 CAN、CAN-FD、工业 CAN 与车载 CAN 的故障电压和测试脉冲不同。示意窗口必须绑定到具体收发器和系统标准。",
+    stress: [["总线故障", 70, "± fault", "warn"], ["VC 裕量", 64, "PHY 限值", ""], ["CAN-FD SI", 52, "CJ / symmetry", ""], ["ISO 脉冲", 78, "系统测试", "warn"]],
+    equation: "VRWM > max(|VCAN,fault|)\nVC @ IPP < VABS(MAX) − VOVERSHOOT",
+    topology: [["线束入口", "CANH/CANL/Shield → TVS array"], ["EMC 网络", "CMC（可选）→ split termination"], ["物理层", "CAN/CAN-FD transceiver"], ["隔离系统", "Digital isolator + isolated power → BMS MCU"]],
+    nodes: [["connector","J1","CANH / CANL",65,210],["tvs","D1","CAN TVS",210,405],["filter","L1","CMC",300,210],["resistor","RT","Split Term.",455,405],["load","U1","CAN-FD PHY",535,210],["load","U2","Digital ISO",715,210],["load","U3","BMS MCU",905,210],["source","ISO","Isolated 5V",715,365]],
+    wires: [[[110,190],[250,190]],[[110,230],[250,230]],[[350,190],[485,190]],[[350,230],[485,230]],[[585,210],[665,210]],[[765,210],[855,210]],[[210,210],[210,365]],[[455,210],[455,365]],[[210,445],[210,500]],[[455,445],[455,500]],[[715,333],[715,245]]],
+    surge: [[30,150],[85,150],[85,230],[210,230],[210,490]], ground:[210,500], boundary:[480,125,485,175]
+  },
+  contactor: {
+    selection: [["VRWM", "> 线圈最高电压"], ["VC", "MOSFET 与释放时间折中"], ["能量", "≥ ½LI² + margin"], ["脉冲次数", "寿命周期校核"], ["方向", "单向 TVS/组合"], ["热设计", "重复脉冲降额"]],
+    selectionNote: "这里的关键不是峰值功率标签，而是线圈能量、重复频率、温度降额和接触器释放时间。需要线圈 L、R 与峰值电流实测。",
+    stress: [["MOSFET VDS", 76, "VC + VS", "warn"], ["单次能量", 66, "½LI²", ""], ["重复热应力", 58, "fSW · E", ""], ["释放时间", 72, "VC tradeoff", "warn"]],
+    equation: "ECOIL = ½ · LCOIL · IPEAK²\nVDS,PK ≈ VSUPPLY + VCLAMP + LSTRAY·di/dt",
+    topology: [["线圈供电", "+12/24 V → Fuse → contactor coil"], ["关断钳位", "TVS/TVS+diode 跨线圈或跨 MOSFET"], ["功率开关", "N-MOSFET low-side + current sense"], ["控制链", "BMS MCU → isolated/gate driver → gate resistor"]],
+    nodes: [["source","VBAT","12/24V",65,150],["fuse","F1","Coil Fuse",210,150],["coil","K1","Contactor Coil",390,210],["tvs","D1","Flyback TVS",390,400],["switch","Q1","N-MOSFET",570,315],["resistor","RS","Current Sense",570,455],["load","U1","Gate Driver",750,315],["resistor","RG","Gate R",660,315],["load","U2","BMS MCU",940,315]],
+    wires: [[[110,150],[165,150]],[[255,150],[390,150],[390,170]],[[390,250],[390,360]],[[390,250],[570,250],[570,275]],[[390,440],[390,455],[520,455]],[[570,355],[570,415]],[[610,315],[620,315]],[[700,315],[700,315]],[[800,315],[890,315]]],
+    surge: [[390,260],[390,360],[390,440],[570,440],[570,260]], ground:[570,495], boundary:[515,230,485,285]
+  },
+  "data-center": {
+    selection: [["VRWM", "≥ 60–64 V 评估"], ["VBR", "避开母线容差"], ["目标 VC", "< FET/IC derated limit"], ["IPP", "由源阻抗决定"], ["PPP", "波形与温度降额"], ["封装", "SMC/高功率方案"]],
+    selectionNote: "48/54 V 母线常含容差、动态升高和热插拔事件。表中仅为初始评估方向，不应直接据此锁定 60 V 或更高 VRWM 器件。",
+    stress: [["母线裕量", 80, "54V + tol.", "warn"], ["FET VDS", 74, "VC + overshoot", "warn"], ["MOSFET SOA", 82, "inrush", "danger"], ["TVS 热应力", 61, "pulse derating", ""]],
+    equation: "IFET(t) = CLOAD · dVOUT/dt\nPTVS(t) = VCLAMP(t) · ITVS(t)",
+    topology: [["母线入口", "Blind-mate connector → Fuse → TVS"], ["浪涌与反接", "ORing / back-to-back MOSFET"], ["热插拔控制", "Controller senses VIN, VOUT, current and gate"], ["后级供电", "Bulk capacitors → isolated DC/DC / point-of-load rails"]],
+    nodes: [["connector","J1","48/54V BUS",65,210],["fuse","F1","Fuse",195,210],["tvs","D1","TVS 评估",325,400],["switch","Q1/Q2","Back-to-back FET",405,210],["load","U1","Hot-swap CTRL",545,365],["resistor","RS","Current Sense",590,210],["load","CIN","Bulk Cap",720,400],["load","U2","Isolated DC/DC",785,210],["load","LOAD","POL Rails",980,210]],
+    wires: [[[110,210],[150,210]],[[240,210],[355,210]],[[455,210],[545,210]],[[635,210],[735,210]],[[835,210],[930,210]],[[325,210],[325,360]],[[325,440],[325,500]],[[545,325],[545,245]],[[720,210],[720,360]],[[720,440],[720,500]]],
+    surge: [[30,160],[85,160],[85,210],[325,210],[325,490]], ground:[325,500], boundary:[530,125,510,175]
+  }
+};
+
+circuits.forEach(circuit => Object.assign(circuit, engineering[circuit.id]));
+
 const list = document.querySelector("#circuit-list");
 const search = document.querySelector("#search");
 const schematic = document.querySelector("#schematic");
@@ -148,10 +203,17 @@ function groundMarkup([x, y]) {
 }
 
 function renderSchematic(circuit) {
-  schematic.innerHTML = `<svg viewBox="0 0 800 500" aria-labelledby="svg-title">
+  const [bx, by, bw, bh] = circuit.boundary;
+  const stressCards = showSurge ? circuit.stress.slice(0, 3).map(([label,,value], index) => `
+    <g class="stress-card" transform="translate(${590 + index * 155} 68)"><rect width="140" height="42" rx="5"/><text x="10" y="17">${label}</text><text x="10" y="34">${value}</text></g>`).join("") : "";
+  schematic.innerHTML = `<svg viewBox="0 0 1100 580" aria-labelledby="svg-title">
     <title id="svg-title">${circuit.title}连接示意图</title>
     <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#e7533f"/></marker></defs>
     <g id="viewport" transform="translate(${transform.x} ${transform.y}) scale(${transform.scale})">
+      <rect class="c-zone" x="20" y="115" width="475" height="415" rx="12"/>
+      <text class="c-zone-title" x="38" y="140">FIELD / SURGE SIDE</text>
+      <rect class="protected-boundary" x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="12"/>
+      <text class="protected-text" x="${bx+14}" y="${by+24}">PROTECTED DOMAIN / DOWNSTREAM TOPOLOGY</text>
       ${circuit.wires.map(w => polyline(w, "c-wire")).join("")}
       ${groundMarkup(circuit.ground)}
       ${circuit.nodes.map(componentMarkup).join("")}
@@ -160,6 +222,7 @@ function renderSchematic(circuit) {
         <circle class="surge-badge" cx="${circuit.surge[0][0]}" cy="${circuit.surge[0][1]-24}" r="21"/>
         <text class="surge-text" x="${circuit.surge[0][0]}" y="${circuit.surge[0][1]-19}">SURGE</text>
       </g>
+      <g class="surge-layer">${stressCards}</g>
     </g>
   </svg>`;
   schematic.classList.toggle("surge-hidden", !showSurge);
@@ -181,6 +244,12 @@ function selectCircuit(id) {
   document.querySelector("#environment").innerHTML = c.environment.map(item => `<span>${item}</span>`).join("");
   document.querySelector("#metrics").innerHTML = c.metrics.map(([key, value]) => `<div><dt>${key}</dt><dd>${value}</dd></div>`).join("");
   document.querySelector("#caution").textContent = c.caution;
+  document.querySelector("#selection-grid").innerHTML = c.selection.map(([key,value]) => `<div class="selection-item"><span>${key}</span><strong>${value}</strong></div>`).join("");
+  document.querySelector("#selection-note").textContent = c.selectionNote;
+  document.querySelector("#stress-status").textContent = "Requires validation";
+  document.querySelector("#stress-bars").innerHTML = c.stress.map(([label,percent,value,state]) => `<div class="stress-row"><span>${label}</span><div class="stress-track"><div class="stress-fill ${state}" style="width:${percent}%"></div></div><span class="stress-value">${value}</span></div>`).join("");
+  document.querySelector("#equation").textContent = c.equation;
+  document.querySelector("#topology-list").innerHTML = c.topology.map(([title,description]) => `<li><strong>${title}</strong>${description}</li>`).join("");
   document.querySelector("#component-note").hidden = true;
   renderList(search.value);
   renderSchematic(c);
@@ -199,10 +268,18 @@ function applyTransform() {
 
 search.addEventListener("input", e => renderList(e.target.value));
 toggle.addEventListener("click", () => {
-  showSurge = !showSurge;
-  toggle.classList.toggle("active", showSurge);
-  toggle.setAttribute("aria-pressed", String(showSurge));
-  schematic.classList.toggle("surge-hidden", !showSurge);
+  showSurge = true;
+  toggle.classList.add("active");
+  document.querySelector("#normal-view").classList.remove("active");
+  toggle.setAttribute("aria-pressed", "true");
+  renderSchematic(circuits.find(item => item.id === selected));
+});
+document.querySelector("#normal-view").addEventListener("click", event => {
+  showSurge = false;
+  event.currentTarget.classList.add("active");
+  toggle.classList.remove("active");
+  toggle.setAttribute("aria-pressed", "false");
+  renderSchematic(circuits.find(item => item.id === selected));
 });
 document.querySelector("#reset-view").addEventListener("click", () => { transform = { x: 0, y: 0, scale: 1 }; applyTransform(); });
 document.querySelector("#close-note").addEventListener("click", () => { document.querySelector("#component-note").hidden = true; });
