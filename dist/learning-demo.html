@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TVS 客户应用与关键拓扑学习平台</title>
+  <meta name="description" content="从客户系统能量链进入关键功率拓扑，学习各行业的TVS节点、应力闭环和技术证据。">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230b2638'/%3E%3Cpath d='M7 16h6l2-7 3 14 2-7h5' fill='none' stroke='%23ff745e' stroke-width='2.3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./v2.css">
+  <link rel="stylesheet" href="./topology-engine-v3.css">
+  <link rel="stylesheet" href="./system-engine-v4.css">
+  <link rel="stylesheet" href="./schematic-engine.css">
+  <link rel="stylesheet" href="./learning-demo.css">
+</head>
+<body class="learn-demo">
+  <header class="demo-bar">
+    <div class="demo-brand"><b>PE</b><div><h1>TVS 客户应用与关键拓扑</h1><p>从整机架构进入关键拓扑，再定位 TVS 的工程职责</p></div></div>
+    <div class="demo-status"><span>当前行业</span><strong id="header-industry">数据中心 AI 服务器供电</strong></div>
+  </header>
+
+  <main class="demo-shell">
+    <aside class="learn-rail" aria-label="学习路径">
+      <div class="persona"><small>你的起点</small><b>已掌握 TVS 原理</b><p>本路径不重复讲雪崩机理，直接建立客户系统、拓扑节点与器件选型之间的联系。</p></div>
+      <nav id="lesson-nav">
+        <button class="active" data-section="context"><i>01</i><span><b>认识客户系统</b><small>TVS 在整机中的位置</small></span></button>
+        <button data-section="topology"><i>02</i><span><b>拆解关键拓扑</b><small>能量链与器件电路</small></span></button>
+        <button data-section="case"><i>03</i><span><b>进入 TVS 案例</b><small>节点、应力与型号</small></span></button>
+        <button data-section="verify"><i>04</i><span><b>完成应力闭环</b><small>残压、裕量与验证</small></span></button>
+        <button data-section="patent"><i>05</i><span><b>阅读技术证据</b><small>参考设计与专利中文解读</small></span></button>
+      </nav>
+      <div class="rail-note"><b>学习结果</b><p id="outcome"></p></div>
+    </aside>
+
+    <section class="learn-workspace">
+      <div class="industry-switch" id="industry-switch" aria-label="选择行业学习路径"></div>
+      <div class="mission-head">
+        <div><small>LEARNING MISSION</small><h2 id="mission-title"></h2><p id="mission-copy"></p></div>
+        <div class="mission-metrics" id="mission-metrics"></div>
+      </div>
+
+      <section class="journey-card">
+        <div class="section-title"><div><small>客户系统地图</small><h3 id="journey-title"></h3></div><div class="legend"><span class="primary">TVS重点</span><span class="coord">协同保护</span><span class="not-tvs">非TVS主责</span></div></div>
+        <div id="energy-chain" class="energy-chain" role="list"></div>
+        <div id="chain-insight" class="chain-insight"></div>
+      </section>
+
+      <div class="focus-grid">
+        <section class="focus-card">
+          <div class="focus-head"><div><small id="focus-family"></small><h3 id="focus-title"></h3><p id="focus-spec"></p></div><span id="focus-role" class="role-pill"></span></div>
+          <div class="study-tabs" id="study-tabs">
+            <button class="active" data-panel="system">系统位置</button>
+            <button data-panel="circuit">器件拓扑</button>
+            <button data-panel="tvs">TVS案例</button>
+            <button data-panel="evidence">技术证据</button>
+          </div>
+          <div class="study-panel active" data-panel-view="system"><div class="canvas demo-canvas" id="system-canvas"></div></div>
+          <div class="study-panel" data-panel-view="circuit"><div class="canvas demo-canvas circuit-canvas" id="circuit-canvas"></div></div>
+          <div class="study-panel" data-panel-view="tvs" id="tvs-panel"></div>
+          <div class="study-panel" data-panel-view="evidence" id="evidence-panel"></div>
+        </section>
+
+        <aside class="coach-card">
+          <small>APPLICATION COACH</small><h3>这一站应该看什么？</h3>
+          <div id="coach-content"></div>
+          <button id="next-step" class="next-step">下一步：查看器件拓扑</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <div class="demo-disclaimer">工程学习资料用于架构分析和初步选型；最终设计必须结合器件数据手册、客户波形、温度降额及整机验证。</div>
+
+  <script src="./power-topologies.js"></script>
+  <script src="./topology-engine-v3.js"></script>
+  <script src="./system-engine-v4.js"></script>
+  <script src="./schematic-engine.js"></script>
+  <script src="./learning-demo.js"></script>
+</body>
+</html>
