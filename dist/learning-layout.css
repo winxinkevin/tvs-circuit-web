@@ -1,0 +1,79 @@
+/* 通用工程学习工作台：紧凑首屏、清晰层级、无个人化前置假设。 */
+html{background:var(--bg)}
+.learn-demo{min-width:320px;min-height:100vh}
+.demo-bar{position:sticky;top:0;z-index:50;height:70px;padding:0 24px;box-shadow:0 2px 12px rgba(11,38,56,.18)}
+.demo-brand>b{width:40px;height:40px;border-radius:8px;font-weight:900}
+.demo-brand h1{font-size:19px;letter-spacing:.01em}
+.demo-brand p{font-size:13px;line-height:1.35}
+.demo-status{max-width:38vw}
+.demo-status strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.demo-shell{grid-template-columns:248px minmax(0,1fr);min-height:calc(100vh - 70px)}
+.learn-rail{top:70px;height:calc(100vh - 70px);padding:18px 14px;background:#f8fafb}
+.rail-heading{padding:14px 13px;margin-bottom:14px;background:#fff;border:1px solid var(--line);border-top:3px solid var(--teal)}
+.rail-heading small{display:block;color:var(--teal);font-size:12px;font-weight:900;letter-spacing:.06em}
+.rail-heading b{display:block;margin-top:6px;font-size:15px}
+.rail-heading p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+.learn-rail nav{gap:4px}
+.learn-rail nav button{min-height:58px;padding:10px;border:1px solid transparent}
+.learn-rail nav button:hover{border-color:#d5e0e5}
+.learn-rail nav button.active{background:#fff;border-color:#d2dde2;box-shadow:inset 3px 0 var(--red),0 2px 7px rgba(23,56,73,.06)}
+.rail-note{background:#fff;border-radius:6px}
+.learn-workspace{width:100%;max-width:1720px;margin:0 auto;padding:20px 24px 34px}
+.industry-switch{gap:8px;margin-bottom:14px;padding:2px 0 4px;scrollbar-width:thin}
+.industry-switch button{min-height:40px;border-radius:6px;padding:8px 15px;font-size:14px}
+.industry-switch button.active{box-shadow:0 3px 9px rgba(11,38,56,.18)}
+.mission-head{align-items:center;margin-bottom:14px;padding:16px 18px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--red);border-radius:7px}
+.mission-head h2{margin:3px 0 4px;font-size:25px}
+.mission-head p{max-width:800px;font-size:14px;line-height:1.6}
+.mission-metrics{justify-content:flex-end;flex-wrap:wrap}
+.mission-metrics span{border-radius:5px;background:#f7fafb}
+.journey-card,.focus-card,.coach-card{border-radius:8px;box-shadow:0 4px 14px rgba(25,57,73,.055)}
+.journey-card{padding:16px 17px;margin-bottom:16px}
+.section-title h3{line-height:1.4}
+.energy-chain{margin-top:14px;padding-bottom:8px}
+.chain-node{border-radius:5px;min-height:70px}
+.chain-node.active{box-shadow:0 3px 10px rgba(213,68,50,.1)}
+.chain-insight{margin-top:3px;border-radius:3px}
+.focus-grid{grid-template-columns:minmax(0,1fr) 320px;gap:16px}
+.focus-head{min-height:86px;padding:16px 18px}
+.study-tabs{gap:4px;overflow-x:auto;padding:0 14px}
+.study-tabs button{min-width:92px;white-space:nowrap}
+.demo-canvas{background:#fcfdfe}
+.coach-card{top:86px;padding:18px}
+.coach-card>small{display:block;margin-bottom:4px}
+.coach-card h3{font-size:18px;line-height:1.4}
+.next-step{min-height:42px;border-radius:5px}
+.demo-disclaimer{font-size:13px;line-height:1.55}
+@media(max-width:1100px){
+  .demo-shell{grid-template-columns:1fr}
+  .learn-rail{position:static;height:auto;padding:12px 16px}
+  .rail-heading,.rail-note{display:none}
+  .learn-rail nav{grid-template-columns:repeat(5,minmax(145px,1fr));overflow-x:auto}
+  .learn-workspace{padding:18px}
+  .focus-grid{grid-template-columns:1fr}
+  .coach-card{position:static}
+  .mission-head{align-items:flex-start}
+}
+@media(max-width:720px){
+  .demo-bar{position:sticky;height:auto;min-height:64px;padding:11px 13px}
+  .demo-brand{gap:10px}
+  .demo-brand>b{width:36px;height:36px}
+  .demo-brand h1{font-size:17px}
+  .demo-brand p{font-size:12px}
+  .learn-rail{padding:8px 10px}
+  .learn-rail nav{display:flex}
+  .learn-rail nav button{min-width:155px}
+  .learn-workspace{padding:12px 10px 24px}
+  .mission-head{padding:14px;gap:12px}
+  .mission-head h2{font-size:21px}
+  .mission-metrics{width:100%;justify-content:flex-start}
+  .journey-card{padding:14px 12px}
+  .section-title{display:block}
+  .energy-chain{gap:20px}
+  .focus-grid{gap:12px}
+  .focus-head{padding:14px}
+  .study-tabs{padding:0 8px}
+  .study-tabs button{padding:11px 10px}
+  .coach-card{padding:15px}
+  .demo-disclaimer{padding:9px 12px;text-align:left}
+}

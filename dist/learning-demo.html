@@ -11,16 +11,17 @@
   <link rel="stylesheet" href="./system-engine-v4.css">
   <link rel="stylesheet" href="./schematic-engine.css">
   <link rel="stylesheet" href="./learning-demo.css">
+  <link rel="stylesheet" href="./learning-layout.css">
 </head>
 <body class="learn-demo">
   <header class="demo-bar">
-    <div class="demo-brand"><b>PE</b><div><h1>TVS 客户应用与关键拓扑</h1><p>从整机架构进入关键拓扑，再定位 TVS 的工程职责</p></div></div>
-    <div class="demo-status"><span>当前行业</span><strong id="header-industry">数据中心 AI 服务器供电</strong></div>
+    <div class="demo-brand"><b>PE</b><div><h1>TVS 客户应用与关键拓扑</h1><p>行业系统 · 功率拓扑 · TVS 案例 · 工程证据</p></div></div>
+    <div class="demo-status"><span>行业路径</span><strong id="header-industry">数据中心 AI 服务器供电</strong></div>
   </header>
 
   <main class="demo-shell">
     <aside class="learn-rail" aria-label="学习路径">
-      <div class="persona"><small>你的起点</small><b>已掌握 TVS 原理</b><p>本路径不重复讲雪崩机理，直接建立客户系统、拓扑节点与器件选型之间的联系。</p></div>
+      <div class="rail-heading"><small>学习导航</small><b>从系统到器件选型</b><p>按统一工程流程查看行业系统、关键拓扑、TVS 应力与技术证据。</p></div>
       <nav id="lesson-nav">
         <button class="active" data-section="context"><i>01</i><span><b>认识客户系统</b><small>TVS 在整机中的位置</small></span></button>
         <button data-section="topology"><i>02</i><span><b>拆解关键拓扑</b><small>能量链与器件电路</small></span></button>
@@ -28,13 +29,13 @@
         <button data-section="verify"><i>04</i><span><b>完成应力闭环</b><small>残压、裕量与验证</small></span></button>
         <button data-section="patent"><i>05</i><span><b>阅读技术证据</b><small>参考设计与专利中文解读</small></span></button>
       </nav>
-      <div class="rail-note"><b>学习结果</b><p id="outcome"></p></div>
+      <div class="rail-note"><b>本路径覆盖</b><p id="outcome"></p></div>
     </aside>
 
     <section class="learn-workspace">
       <div class="industry-switch" id="industry-switch" aria-label="选择行业学习路径"></div>
       <div class="mission-head">
-        <div><small>LEARNING MISSION</small><h2 id="mission-title"></h2><p id="mission-copy"></p></div>
+        <div><small>行业学习路径</small><h2 id="mission-title"></h2><p id="mission-copy"></p></div>
         <div class="mission-metrics" id="mission-metrics"></div>
       </div>
 
@@ -60,7 +61,7 @@
         </section>
 
         <aside class="coach-card">
-          <small>APPLICATION COACH</small><h3>这一站应该看什么？</h3>
+          <small>工程导读</small><h3>当前拓扑分析重点</h3>
           <div id="coach-content"></div>
           <button id="next-step" class="next-step">下一步：查看器件拓扑</button>
         </aside>
