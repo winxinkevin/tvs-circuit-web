@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./schematic-engine.css">
   <link rel="stylesheet" href="./learning-demo.css">
   <link rel="stylesheet" href="./learning-layout.css">
+  <link rel="stylesheet" href="./learning-v2.css">
 </head>
 <body class="learn-demo">
   <header class="demo-bar">
@@ -20,20 +21,15 @@
   </header>
 
   <main class="demo-shell">
-    <aside class="learn-rail" aria-label="学习路径">
-      <div class="rail-heading"><small>学习导航</small><b>从系统到器件选型</b><p>按统一工程流程查看行业系统、关键拓扑、TVS 应力与技术证据。</p></div>
-      <nav id="lesson-nav">
-        <button class="active" data-section="context"><i>01</i><span><b>认识客户系统</b><small>TVS 在整机中的位置</small></span></button>
-        <button data-section="topology"><i>02</i><span><b>拆解关键拓扑</b><small>能量链与器件电路</small></span></button>
-        <button data-section="case"><i>03</i><span><b>进入 TVS 案例</b><small>节点、应力与型号</small></span></button>
-        <button data-section="verify"><i>04</i><span><b>完成应力闭环</b><small>残压、裕量与验证</small></span></button>
-        <button data-section="patent"><i>05</i><span><b>阅读技术证据</b><small>参考设计与专利中文解读</small></span></button>
-      </nav>
-      <div class="rail-note"><b>本路径覆盖</b><p id="outcome"></p></div>
+    <aside class="learn-rail" aria-label="TVS应用案例导航">
+      <div class="rail-heading"><small>应用案例导航</small><b id="rail-industry">数据中心</b><p>选择关键功率拓扑，案例、应力闭环和技术证据将同步切换。</p></div>
+      <nav id="topology-nav" aria-label="关键功率拓扑"></nav>
+      <div class="rail-note"><b>当前路径覆盖</b><p id="outcome"></p></div>
     </aside>
 
     <section class="learn-workspace">
       <div class="industry-switch" id="industry-switch" aria-label="选择行业学习路径"></div>
+      <nav class="case-breadcrumb" id="case-breadcrumb" aria-label="当前位置"></nav>
       <div class="mission-head">
         <div><small>行业学习路径</small><h2 id="mission-title"></h2><p id="mission-copy"></p></div>
         <div class="mission-metrics" id="mission-metrics"></div>
@@ -50,20 +46,22 @@
           <div class="focus-head"><div><small id="focus-family"></small><h3 id="focus-title"></h3><p id="focus-spec"></p></div><span id="focus-role" class="role-pill"></span></div>
           <div class="study-tabs" id="study-tabs">
             <button class="active" data-panel="system">系统位置</button>
-            <button data-panel="circuit">器件拓扑</button>
-            <button data-panel="tvs">TVS案例</button>
+            <button data-panel="circuit">专业电路拓扑</button>
+            <button data-panel="cases">TVS应用案例</button>
+            <button data-panel="stress">应力闭环</button>
             <button data-panel="evidence">技术证据</button>
           </div>
           <div class="study-panel active" data-panel-view="system"><div class="canvas demo-canvas" id="system-canvas"></div></div>
           <div class="study-panel" data-panel-view="circuit"><div class="canvas demo-canvas circuit-canvas" id="circuit-canvas"></div></div>
-          <div class="study-panel" data-panel-view="tvs" id="tvs-panel"></div>
+          <div class="study-panel" data-panel-view="cases" id="case-panel"></div>
+          <div class="study-panel" data-panel-view="stress" id="stress-panel"></div>
           <div class="study-panel" data-panel-view="evidence" id="evidence-panel"></div>
         </section>
 
         <aside class="coach-card">
-          <small>工程导读</small><h3>当前拓扑分析重点</h3>
+          <small>当前案例</small><h3 id="coach-title">案例分析重点</h3>
           <div id="coach-content"></div>
-          <button id="next-step" class="next-step">下一步：查看器件拓扑</button>
+          <button id="next-step" class="next-step">下一步：查看专业电路拓扑</button>
         </aside>
       </div>
     </section>
@@ -74,6 +72,6 @@
   <script src="./topology-engine-v3.js"></script>
   <script src="./system-engine-v4.js"></script>
   <script src="./schematic-engine.js"></script>
-  <script src="./learning-demo.js"></script>
+  <script src="./learning-v2.js"></script>
 </body>
 </html>
