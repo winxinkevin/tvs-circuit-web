@@ -1,0 +1,11 @@
+.professional-system,.topology-v3{min-width:900px!important}
+.control-v3{fill:none;stroke:#718b99;stroke-width:2;stroke-dasharray:6 5}
+@media(max-width:1250px){
+  .atlas-layout{grid-template-columns:1fr}
+  .topology-list{display:grid;grid-template-columns:repeat(2,1fr);max-height:300px}
+  .viewer{width:100%}
+}
+@media(max-width:680px){
+  .topology-list{grid-template-columns:1fr}
+  .professional-system,.topology-v3{min-width:760px!important}
+}
