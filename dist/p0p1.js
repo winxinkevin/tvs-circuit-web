@@ -4,17 +4,35 @@ const kb=window.PE_KB;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 let domain='all', voltage='', query='', topologyCategory='全部';
 const domainBy=id=>kb.domains.find(x=>x.id===id);
+const chainBy=id=>kb.applicationChains.find(x=>x.domain===id);
+const topologyBy=id=>kb.topologies.find(x=>x.id===id);
 const standardBy=id=>kb.standards.find(x=>x.id===id);
 const resourceBy=id=>kb.resources.find(x=>x.id===id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const chainTopologyIds=chain=>[...new Set(chain.stages.flatMap(x=>x.topologies))];
+const domainTopologyIds=id=>id==='all'?kb.topologies.map(x=>x.id):chainTopologyIds(chainBy(id));
+const topologyDomains=id=>kb.applicationChains.filter(c=>c.stages.some(s=>s.topologies.includes(id))).map(c=>domainBy(c.domain)).filter(Boolean);
+
+function selectDomain(id,scroll=true){
+  domain=id;voltage='';topologyCategory='全部';
+  $('#overview').classList.add('active');$('#detail').classList.remove('active');
+  renderAll();history.replaceState(null,'',domain==='all'?location.pathname:`${location.pathname}?domain=${encodeURIComponent(domain)}`);
+  if(scroll)setTimeout(()=>$('#industry-map-section')?.scrollIntoView({behavior:'smooth',block:'start'}),0);
+}
 
 function renderNav(){
-  $('#domain-nav').innerHTML=[{id:'all',name:'全部领域'},...kb.domains].map(d=>`<button class="${domain===d.id?'active':''}" data-domain="${d.id}"><span>${d.name}</span><small>${d.id==='all'?kb.cases.length:kb.cases.filter(c=>c.domain===d.id).length}</small></button>`).join('');
-  $$('[data-domain]').forEach(b=>b.onclick=()=>{domain=b.dataset.domain;voltage='';showOverview();renderAll();document.querySelector('#case-grid').scrollIntoView({behavior:'smooth',block:'start'})});
+  $('#domain-nav').innerHTML=[{id:'all',name:'全部领域'},...kb.domains].map(d=>`<button class="${domain===d.id?'active':''}" data-domain="${d.id}"><span>${d.name}</span><small>${domainTopologyIds(d.id).length} 拓扑</small></button>`).join('');
+  $$('[data-domain]').forEach(b=>b.onclick=()=>selectDomain(b.dataset.domain));
 }
 function renderDomains(){
-  $('#domain-grid').innerHTML=kb.domains.map(d=>{const ready=kb.cases.filter(c=>c.domain===d.id).length;return `<button class="domain-card" data-domain-card="${d.id}"><b>${d.name}</b><p>${d.description}</p><div>${d.platforms.map(x=>`<span>${x}</span>`).join('')}</div><em>${ready?`P1已完成 ${ready} 个样板`:'P2/P3扩展入口'}</em></button>`}).join('');
-  $$('[data-domain-card]').forEach(b=>b.onclick=()=>{domain=b.dataset.domainCard;voltage='';renderAll();document.querySelector('#case-grid').scrollIntoView({behavior:'smooth',block:'start'})});
+  $('#domain-grid').innerHTML=kb.domains.map(d=>{const ready=kb.cases.filter(c=>c.domain===d.id).length,topologyCount=domainTopologyIds(d.id).length;return `<button class="domain-card ${domain===d.id?'active':''}" data-domain-card="${d.id}"><b>${d.name}</b><p>${d.description}</p><div>${d.platforms.map(x=>`<span>${x}</span>`).join('')}</div><em>${topologyCount} 类拓扑 · ${ready} 个黄金案例 →</em></button>`}).join('');
+  $$('[data-domain-card]').forEach(b=>b.onclick=()=>selectDomain(b.dataset.domainCard));
+}
+function renderIndustryMap(){
+  const chains=domain==='all'?kb.applicationChains:[chainBy(domain)];
+  $('#industry-map').innerHTML=chains.map(chain=>{const d=domainBy(chain.domain),ids=chainTopologyIds(chain);return `<article class="industry-map-row ${domain===chain.domain?'active':''}"><button class="industry-map-domain" data-map-domain="${chain.domain}"><small>应用领域</small><h3>${esc(d.name)}</h3><p>${esc(chain.headline)}</p><div>${d.platforms.map(x=>`<span>${esc(x)}</span>`).join('')}</div><b>${ids.length} 类对应拓扑</b></button><div class="stage-track">${chain.stages.map((stage,i)=>`<section class="map-stage"><header><i>${i+1}</i><div><b>${esc(stage.name)}</b><small>${esc(stage.note)}</small></div></header><div>${stage.topologies.map(id=>{const t=topologyBy(id);return `<button data-map-topology="${id}"><span>${esc(t.name)}</span><small>${esc(t.voltage)}</small></button>`}).join('')}</div></section>`).join('')}</div></article>`}).join('');
+  $$('[data-map-domain]').forEach(b=>b.onclick=()=>selectDomain(b.dataset.mapDomain));
+  $$('[data-map-topology]').forEach(b=>b.onclick=e=>{e.stopPropagation();openTopology(b.dataset.mapTopology)});
 }
 function renderVoltages(){
   $('#voltage-list').innerHTML=kb.voltageDomains.map(v=>`<button class="chip ${voltage===v?'active':''}" data-voltage="${esc(v)}">${v}</button>`).join('');
@@ -27,21 +45,25 @@ function filtered(){
   });
 }
 function renderCases(){
-  const list=filtered(); $('#result-count').textContent=`显示 ${list.length} / ${kb.cases.length} 个样板`; $('#empty').hidden=!!list.length;
+  const list=filtered(),total=domain==='all'?kb.cases.length:kb.cases.filter(c=>c.domain===domain).length; $('#result-count').textContent=`显示 ${list.length} / ${total} 个样板`; $('#empty').hidden=!!list.length;
   $('#case-grid').innerHTML=list.map(c=>`<button class="case-card" data-case="${c.id}"><div class="case-meta"><span>${domainBy(c.domain)?.name}</span><span>·</span><span>${c.voltage}</span><span class="status">${c.status}</span></div><h3>${c.title}</h3><p>${c.summary}</p><footer><span>${c.system.length}段系统链路</span><b>${c.devices.map(x=>x.family).join(' · ')}</b></footer></button>`).join('');
   $$('[data-case]').forEach(b=>b.onclick=()=>openCase(b.dataset.case));
 }
 function renderTopologies(){
   const categories=['全部',...new Set(kb.topologies.map(x=>x.category))];
   $('#topology-filter').innerHTML=categories.map(x=>`<button class="chip ${topologyCategory===x?'active':''}" data-topology-category="${esc(x)}">${esc(x)}</button>`).join('');
-  const list=kb.topologies.filter(x=>{const blob=[x.name,x.category,x.voltage,x.summary,x.protection,...x.devices].join(' ').toLowerCase();return(topologyCategory==='全部'||x.category===topologyCategory)&&(!query||blob.includes(query))});
-  $('#topology-count').textContent=`显示 ${list.length} / ${kb.topologies.length} 张可打开拓扑`;
+  const allowedIds=new Set(domainTopologyIds(domain)),allowed=kb.topologies.filter(x=>allowedIds.has(x.id));
+  const list=allowed.filter(x=>{const blob=[x.name,x.category,x.voltage,x.summary,x.protection,...x.devices].join(' ').toLowerCase();return(topologyCategory==='全部'||x.category===topologyCategory)&&(!query||blob.includes(query))});
+  const selected=domainBy(domain),chain=chainBy(domain);
+  $('#topology-context').innerHTML=domain==='all'?`<b>全部领域共用拓扑库</b><span>点击上方任一领域，系统将只保留该领域能量链中实际使用的线路。</span>`:`<b>${esc(selected.name)} · ${allowed.length} 类拓扑</b><span>${esc(chain.headline)}</span><button data-clear-domain>查看全部领域</button>`;
+  $('#topology-count').textContent=`显示 ${list.length} / ${allowed.length} 张对应拓扑`;
   $('#topology-grid').innerHTML=list.map(x=>`<button class="topology-card" data-topology="${x.id}"><header><span>${esc(x.category)}</span><span>${esc(x.voltage)}</span></header><h3>${esc(x.name)}</h3><p>${esc(x.summary)}</p><footer><span>${x.devices.length} 类关键器件 · ${x.resources.length} 条资料</span><b>打开电路图 →</b></footer></button>`).join('');
   $$('[data-topology-category]').forEach(b=>b.onclick=()=>{topologyCategory=b.dataset.topologyCategory;renderTopologies()});
   $$('[data-topology]').forEach(b=>b.onclick=()=>openTopology(b.dataset.topology));
+  $('[data-clear-domain]')?.addEventListener('click',()=>selectDomain('all'));
 }
-function renderAll(){renderNav();renderDomains();renderVoltages();renderTopologies();renderCases()}
-function showOverview(){ $('#overview').classList.add('active');$('#detail').classList.remove('active');history.replaceState(null,'',location.pathname);window.scrollTo({top:0,behavior:'smooth'}) }
+function renderAll(){renderNav();renderDomains();renderIndustryMap();renderVoltages();renderTopologies();renderCases()}
+function showOverview(){ $('#overview').classList.add('active');$('#detail').classList.remove('active');history.replaceState(null,'',domain==='all'?location.pathname:`${location.pathname}?domain=${encodeURIComponent(domain)}`);window.scrollTo({top:0,behavior:'smooth'}) }
 
 const L=(x1,y1,x2,y2,cls='wire')=>`<line class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
 const P=(d,cls='wire')=>`<path class="${cls}" d="${d}"/>`;
@@ -110,13 +132,14 @@ function resourceList(resources){
 function openTopology(id){
   const x=kb.topologies.find(t=>t.id===id);if(!x)return;
   const resources=x.resources.map(resourceBy).filter(Boolean), cases=x.cases.map(id=>kb.cases.find(c=>c.id===id)).filter(Boolean);
+  const applications=kb.applicationChains.flatMap(chain=>chain.stages.filter(stage=>stage.topologies.includes(x.id)).map(stage=>({domain:domainBy(chain.domain),stage:stage.name})));
   const obsidian=`obsidian://open?vault=${encodeURIComponent('Semiconductor-KB')}&file=${encodeURIComponent('拓扑/'+x.name)}`;
   $('#overview').classList.remove('active');$('#detail').classList.add('active');
   $('#detail').innerHTML=`<header class="detail-head"><div><button class="back" id="back">返回全局地图</button><div class="case-meta"><span>${esc(x.category)}</span><span>·</span><span>${esc(x.voltage)}</span><span class="status">器件级参考拓扑</span></div><h1>${esc(x.name)}</h1><p>${esc(x.summary)}</p></div><div class="detail-actions"><a class="action" href="${obsidian}">在Obsidian打开</a><a class="action primary" href="#topology-evidence">直达资料</a></div></header>
   <section class="paper" style="margin-top:18px"><div class="section-head"><div><small>主功率、回流与保护支路</small><h2>器件级参考拓扑</h2></div><div class="legend"><span class="power">主功率</span><span class="signal">控制/采样</span><span class="protection">保护器件</span></div></div><div class="schematic-wrap">${topologyDiagram(x.drawing)}</div><p class="diagram-note">这是用于应用学习和方案讨论的器件级参考拓扑，不代替量产原理图、安规间距、磁件设计、器件降额、ERC和实验验证。</p></section>
-  <section class="topology-summary" style="margin-top:14px"><div class="paper"><h2>关键器件位点</h2><div class="topology-cloud">${x.devices.map(d=>`<span>${esc(d)}</span>`).join('')}</div><div class="topology-facts" style="margin-top:14px"><div class="fact protection"><b>保护位置与边界</b><span>${esc(x.protection)}</span></div></div></div><aside class="paper"><h3>关联黄金案例</h3>${cases.length?cases.map(c=>`<button class="case-card" data-related-case="${c.id}" style="width:100%;min-height:0;margin-top:8px"><b>${esc(c.title)}</b><p>${esc(c.voltage)}</p></button>`).join(''):'<p>该共用拓扑暂未绑定P1黄金案例，图与证据已可独立学习。</p>'}</aside></section>
+  <section class="topology-summary" style="margin-top:14px"><div class="paper"><h2>适用领域与器件位点</h2><div class="application-badges">${applications.map(a=>`<button data-related-domain="${a.domain.id}"><b>${esc(a.domain.name)}</b><span>${esc(a.stage)}</span></button>`).join('')}</div><h3 style="margin-top:18px">关键器件</h3><div class="topology-cloud">${x.devices.map(d=>`<span>${esc(d)}</span>`).join('')}</div><div class="topology-facts" style="margin-top:14px"><div class="fact protection"><b>保护位置与边界</b><span>${esc(x.protection)}</span></div></div></div><aside class="paper"><h3>关联黄金案例</h3>${cases.length?cases.map(c=>`<button class="case-card" data-related-case="${c.id}" style="width:100%;min-height:0;margin-top:8px"><b>${esc(c.title)}</b><p>${esc(c.voltage)}</p></button>`).join(''):'<p>该共用拓扑暂未绑定P1黄金案例，图与证据已可独立学习。</p>'}</aside></section>
   <section id="topology-evidence" class="paper" style="margin-top:14px"><h2>已核验的规格书、模型与论文</h2>${resourceList(resources)}<div class="warning">“开放全文/官方PDF”可直接阅读；“摘要页·全文视授权”只保证摘要入口，不伪装成免费全文。若厂商改版，优先使用备用入口。</div></section>`;
-  $('#back').onclick=showOverview;$$('[data-related-case]').forEach(b=>b.onclick=()=>openCase(b.dataset.relatedCase));
+  $('#back').onclick=showOverview;$$('[data-related-case]').forEach(b=>b.onclick=()=>openCase(b.dataset.relatedCase));$$('[data-related-domain]').forEach(b=>b.onclick=()=>selectDomain(b.dataset.relatedDomain));
   history.replaceState(null,'',`${location.pathname}?topology=${encodeURIComponent(x.id)}`);window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -142,9 +165,8 @@ function openCase(id){
 function showTab(name){$$('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===name));$$('[data-panel]').forEach(x=>x.classList.toggle('active',x.dataset.panel===name));if(name==='circuit')setTimeout(()=>document.querySelector('.schematic-wrap')?.scrollTo({left:0,behavior:'smooth'}),0)}
 
 $('#search').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();showOverview();renderTopologies();renderCases();document.querySelector('#topology-section').scrollIntoView({behavior:'smooth',block:'start'})});
-$$('[data-mobile]').forEach(b=>b.onclick=()=>{$$('[data-mobile]').forEach(x=>x.classList.toggle('active',x===b));showOverview();const target={home:'#overview',domains:'#domain-grid',topologies:'#topology-section',cases:'#case-grid',search:'#search'}[b.dataset.mobile];const el=$(target);if(b.dataset.mobile==='search'){el.focus();scrollTo({top:0,behavior:'smooth'})}else el?.scrollIntoView({behavior:'smooth',block:'start'})});
-window.addEventListener('popstate',()=>{const p=new URLSearchParams(location.search),caseId=p.get('case'),topologyId=p.get('topology');caseId?openCase(caseId):topologyId?openTopology(topologyId):showOverview()});
-renderAll();
-const initialParams=new URLSearchParams(location.search),initialCase=initialParams.get('case'),initialTopology=initialParams.get('topology');if(initialCase)openCase(initialCase);else if(initialTopology)openTopology(initialTopology);
+$$('[data-mobile]').forEach(b=>b.onclick=()=>{$$('[data-mobile]').forEach(x=>x.classList.toggle('active',x===b));showOverview();const target={home:'#overview',domains:'#industry-map-section',topologies:'#topology-section',cases:'#case-grid',search:'#search'}[b.dataset.mobile];const el=$(target);if(b.dataset.mobile==='search'){el.focus();scrollTo({top:0,behavior:'smooth'})}else el?.scrollIntoView({behavior:'smooth',block:'start'})});
+window.addEventListener('popstate',()=>{const p=new URLSearchParams(location.search),caseId=p.get('case'),topologyId=p.get('topology'),domainId=p.get('domain');if(caseId)openCase(caseId);else if(topologyId)openTopology(topologyId);else{domain=chainBy(domainId)?domainId:'all';renderAll();showOverview()}});
+const initialParams=new URLSearchParams(location.search),initialCase=initialParams.get('case'),initialTopology=initialParams.get('topology'),initialDomain=initialParams.get('domain');if(chainBy(initialDomain))domain=initialDomain;renderAll();if(initialCase)openCase(initialCase);else if(initialTopology)openTopology(initialTopology);else if(domain!=='all')setTimeout(()=>{const root=document.documentElement,previous=root.style.scrollBehavior;root.style.scrollBehavior='auto';$('#industry-map-section')?.scrollIntoView({block:'start'});root.style.scrollBehavior=previous},160);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 })();

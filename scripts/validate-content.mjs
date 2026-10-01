@@ -14,6 +14,7 @@ const unique = (items, label) => {
 };
 
 expect(kb.domains.length === 9, `领域应为9个，实际${kb.domains.length}个`);
+expect(kb.applicationChains.length === kb.domains.length, `领域拓扑关系应覆盖${kb.domains.length}个领域，实际${kb.applicationChains.length}个`);
 expect(kb.voltageDomains.length === 7, `电压域应为7个，实际${kb.voltageDomains.length}个`);
 expect(kb.topologies.length === 24, `共用拓扑应为24个，实际${kb.topologies.length}个`);
 expect(kb.cases.length === 8, `P1案例应为8个，实际${kb.cases.length}个`);
@@ -31,6 +32,24 @@ const domainIds = new Set(kb.domains.map(x => x.id));
 const standardIds = new Set(kb.standards.map(x => x.id));
 const resourceIds = new Set(kb.resources.map(x => x.id));
 const caseIds = new Set(kb.cases.map(x => x.id));
+const topologyIds = new Set(kb.topologies.map(x => x.id));
+
+unique(kb.applicationChains.map(x => ({ id: x.domain })), '领域拓扑关系');
+const mappedTopologyIds = new Set();
+for (const chain of kb.applicationChains) {
+  expect(domainIds.has(chain.domain), `领域拓扑关系引用了不存在的领域：${chain.domain}`);
+  expect(chain.headline, `${chain.domain}缺少领域学习说明`);
+  expect(chain.stages.length >= 3, `${chain.domain}应用阶段少于3级`);
+  for (const stage of chain.stages) {
+    expect(stage.name && stage.note, `${chain.domain}存在缺少名称或说明的应用阶段`);
+    expect(stage.topologies.length >= 2, `${chain.domain}/${stage.name}关联拓扑少于2个`);
+    for (const id of stage.topologies) {
+      expect(topologyIds.has(id), `${chain.domain}/${stage.name}引用了不存在的拓扑：${id}`);
+      mappedTopologyIds.add(id);
+    }
+  }
+}
+for (const id of topologyIds) expect(mappedTopologyIds.has(id), `拓扑${id}没有映射到任何领域`);
 
 for (const item of kb.topologies) {
   expect(item.name && item.category && item.voltage && item.summary, `${item.id}缺少拓扑基础字段`);

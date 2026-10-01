@@ -8,7 +8,7 @@
   <meta name="description" content="从行业、供电架构、标准和真实线路拓扑学习TVS、TSS、ESD、Zener、桥堆、FRED、Schottky与MOS应用。">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23071b2b'/%3E%3Cpath d='M5 17h7l2-8 4 15 2-7h7' fill='none' stroke='%235de1c4' stroke-width='2.4'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./p0p1.css?v=20261001c">
+  <link rel="stylesheet" href="./p0p1.css?v=20261001e">
 </head>
 <body>
   <header class="topbar">
@@ -36,19 +36,21 @@
           <div id="domain-grid" class="domain-grid"></div>
         </section>
 
-        <section class="section-block">
-          <div class="section-head"><div><small>供电架构轴</small><h2>按准确电压域检索</h2></div><p>不使用含糊的“高压/低压”标签。</p></div>
-          <div id="voltage-list" class="chip-row"></div>
+        <section class="section-block" id="industry-map-section">
+          <div class="section-head"><div><small>领域 → 阶段 → 线路</small><h2>行业应用与拓扑对应关系</h2></div><p>先找到客户系统中的能量阶段，再进入对应电路。</p></div>
+          <div id="industry-map" class="industry-map"></div>
         </section>
 
         <section class="section-block" id="topology-section">
           <div class="section-head"><div><small>P0 · 器件级参考拓扑</small><h2>24 类共用线路</h2></div><p id="topology-count">每一项均可打开电路图、器件位点和证据。</p></div>
+          <div id="topology-context" class="topology-context"></div>
           <div id="topology-filter" class="chip-row topology-filter"></div>
           <div id="topology-grid" class="topology-grid"></div>
         </section>
 
         <section class="section-block">
           <div class="section-head"><div><small>P1 · 黄金样板</small><h2>专业案例</h2></div><p id="result-count"></p></div>
+          <div class="voltage-filter-panel"><b>案例电压域</b><span>只筛选下方黄金案例；上方拓扑由所选领域决定。</span><div id="voltage-list" class="chip-row"></div></div>
           <div id="case-grid" class="case-grid"></div>
           <div id="empty" class="empty" hidden>没有匹配结果，请换一个关键词。</div>
         </section>
@@ -66,7 +68,7 @@
     <button data-mobile="search">搜索</button>
   </nav>
 
-  <script src="./data/p0p1-kb.js?v=20261001c"></script>
-  <script src="./p0p1.js?v=20261001c"></script>
+  <script src="./data/p0p1-kb.js?v=20261001e"></script>
+  <script src="./p0p1.js?v=20261001f"></script>
 </body>
 </html>

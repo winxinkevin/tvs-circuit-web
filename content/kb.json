@@ -16,6 +16,53 @@
     {"id":"transport","name":"轨交与低空","description":"轨交电源、无人机、eVTOL与高可靠执行机构","platforms":["宽压输入电源","电推进","冗余控制"]},
     {"id":"space","name":"卫星与高可靠","description":"卫星电源、射频接口与高可靠控制","platforms":["卫星电源总线","载荷供电","射频接口"]}
   ],
+  "applicationChains": [
+    {"domain":"consumer","headline":"外部端口和AC入口先防护，再完成多级低压供电，最后进入人机接口与小功率执行负载。","stages":[
+      {"name":"入口与外部端口","note":"市电、USB-C和用户可触碰接口","topologies":["ac-input-bridge","usb-esd"]},
+      {"name":"电源变换","note":"离线电源、充电器与板级电源","topologies":["pfc","flyback","buck-vrm"]},
+      {"name":"负载与局部保护","note":"电机、照明驱动及开关节点","topologies":["motor-inductive","gate-clamp"]}
+    ]},
+    {"domain":"industrial","headline":"工业设备以24V控制、三相功率和长线通信为主，拓扑重点是宽压入口、隔离和感性负载。","stages":[
+      {"name":"AC/DC入口","note":"单相、三相及24/48V控制电源入口","topologies":["ac-input-bridge","three-phase-afe","dc-hot-swap"]},
+      {"name":"控制与通信端口","note":"CAN、RS-485、24V I/O和工业以太网","topologies":["industrial-io","poe"]},
+      {"name":"电源与马达驱动","note":"辅助电源、UPS、变频器与执行机构","topologies":["pfc","flyback","llc-psfb","inverter","motor-inductive","gate-clamp"]}
+    ]},
+    {"domain":"compute","headline":"计算设备从AC或48V入口，经服务器电源和多相VRM，最终进入主板、外设和散热负载。","stages":[
+      {"name":"AC/机架入口","note":"PSU输入、48/54V热插拔与冗余","topologies":["ac-input-bridge","dc-hot-swap","ideal-diode-oring"]},
+      {"name":"服务器与主板供电","note":"PFC、隔离DC/DC、辅助电源和多相VRM","topologies":["pfc","llc-psfb","flyback","buck-vrm"]},
+      {"name":"外设与散热","note":"高速接口、PoE及风扇/泵辅助电源","topologies":["usb-esd","poe","liquid-cooling-aux"]}
+    ]},
+    {"domain":"ai-dc","headline":"AI数据中心需要同时看设施级高压配电、机架级隔离变换和板级GPU/液冷供电，不能只看单一TVS位点。","stages":[
+      {"name":"设施入口与高压配电","note":"MVAC/三相AC、SST、800VDC母线和故障隔离","topologies":["three-phase-afe","sst","hvdc-distribution","sscb"]},
+      {"name":"机架变换与冗余","note":"PFC、隔离DC/DC、热插拔和ORing","topologies":["pfc","llc-psfb","dab-cllc","dc-hot-swap","ideal-diode-oring"]},
+      {"name":"板级、网络与液冷","note":"GPU VRM、管理网络和泵/风扇辅助供电","topologies":["buck-vrm","poe","liquid-cooling-aux","gate-clamp"]}
+    ]},
+    {"domain":"telecom","headline":"通信设备以-48V冗余供电、PoE/铜线/RF端口和隔离辅助电源为主。","stages":[
+      {"name":"-48V入口与冗余","note":"双路基站电源、热插拔和理想二极管","topologies":["telecom-oring","dc-hot-swap","ideal-diode-oring"]},
+      {"name":"网络与长线端口","note":"Ethernet/PoE、POTS/xDSL及射频同轴","topologies":["poe","pots-tss","rf-coax"]},
+      {"name":"板级辅助变换","note":"隔离低压、POL和开关节点保护","topologies":["flyback","llc-psfb","buck-vrm","gate-clamp"]}
+    ]},
+    {"domain":"energy","headline":"储能、光伏和充电设备从高压电池/PV入口，经双向变换与配电，再进入电网或驱动负载。","stages":[
+      {"name":"高压输入与配电","note":"电池/PV、预充接触器、HVDC和快速隔离","topologies":["pv-battery-input","bms-precharge","hvdc-distribution","sscb"]},
+      {"name":"双向功率变换","note":"并网AFE、PFC、DAB/CLLC和逆变输出","topologies":["three-phase-afe","pfc","dab-cllc","llc-psfb","inverter"]},
+      {"name":"驱动与控制端口","note":"泵、风扇、继电器和工业通信","topologies":["motor-inductive","industrial-io","gate-clamp"]}
+    ]},
+    {"domain":"robotics","headline":"具身智能从电池安全和分区配电开始，经关节功率级驱动电机，再连接感知和通信端口。","stages":[
+      {"name":"电池与分区配电","note":"BMS、预充、热插拔和肢体故障隔离","topologies":["bms-precharge","dc-hot-swap","sscb"]},
+      {"name":"关节与执行机构","note":"板级变换、三相伺服、抱闸和栅极保护","topologies":["buck-vrm","inverter","motor-inductive","gate-clamp"]},
+      {"name":"感知与通信","note":"USB、CAN/RS-485及低电容传感接口","topologies":["usb-esd","industrial-io","rf-coax"]}
+    ]},
+    {"domain":"transport","headline":"轨交、无人机和eVTOL强调宽压输入、冗余隔离、双向能量流和高可靠执行机构。","stages":[
+      {"name":"宽压输入与隔离","note":"电池/母线入口、预充、SSCB和冗余供电","topologies":["dc-hot-swap","pv-battery-input","bms-precharge","hvdc-distribution","sscb"]},
+      {"name":"隔离变换与电推进","note":"辅助电源、双向DC/DC、逆变器和电机","topologies":["flyback","llc-psfb","dab-cllc","inverter","motor-inductive"]},
+      {"name":"控制与高可靠接口","note":"车载/轨交通信、射频和功率开关保护","topologies":["industrial-io","rf-coax","gate-clamp"]}
+    ]},
+    {"domain":"space","headline":"卫星与高可靠系统重视受控输入、冗余电源、载荷POL和超低电容射频/高速接口。","stages":[
+      {"name":"受控输入与冗余","note":"母线热插拔、理想二极管和电池管理","topologies":["dc-hot-swap","ideal-diode-oring","bms-precharge"]},
+      {"name":"载荷电源变换","note":"隔离辅助电源、POL和高效率DC/DC","topologies":["flyback","llc-psfb","buck-vrm"]},
+      {"name":"高可靠接口","note":"射频同轴、高速数字接口和开关节点钳位","topologies":["rf-coax","usb-esd","gate-clamp"]}
+    ]}
+  ],
   "voltageDomains": [
     "3.3/5/12V板级",
     "24V工业",
