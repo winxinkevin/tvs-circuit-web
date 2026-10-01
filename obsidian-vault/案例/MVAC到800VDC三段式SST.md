@@ -51,7 +51,7 @@ tags: [应用案例, AI数据中心, P1]
 
 ## 规格书、模型与论文
 
-- [IEEE｜Solid-State Transformers: An Overview](https://doi.org/10.1109/MIE.2011.942065)：论文；SST概念、拓扑与应用综述
+- [MDPI｜Solid-State Transformer Technologies and Applications](https://res.mdpi.com/d_attachment/electronics/electronics-07-00298/article_deploy/electronics-07-00298.pdf)：开放论文；主链接直达PDF（开放全文，核验 2026-10-01）；[备用入口](https://www.mdpi.com/2079-9292/7/11/298)
 - [Infineon｜Power MOSFET Simulation Models](https://www.infineon.com/de/design-resources/simulation-modeling/power-mosfet-simulation-models)：PSpice模型；官方PSpice代码；页面明确要求最终硬件验证
 - [Infineon｜IMW65R027M1H CoolSiC MOSFET](https://www.infineon.com/assets/row/public/documents/24/49/infineon-imw65r027m1h-datasheet-en.pdf)：规格书/模型；650V SiC器件参考；模型需核对适用层级
 

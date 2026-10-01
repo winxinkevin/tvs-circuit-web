@@ -7,6 +7,7 @@ const dataDir = path.join(root, 'dist', 'data');
 const vaultDir = path.join(root, 'obsidian-vault');
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(path.join(vaultDir, '案例'), { recursive: true });
+fs.mkdirSync(path.join(vaultDir, '拓扑'), { recursive: true });
 
 fs.writeFileSync(path.join(dataDir, 'p0p1-kb.js'), `window.PE_KB=${JSON.stringify(kb)};\n`);
 
@@ -55,7 +56,7 @@ ${standards.map(x => `- [${x.name}](${x.url})：${x.scope}（${x.status}）`).jo
 
 ## 规格书、模型与论文
 
-${resources.map(x => `- [${x.vendor}｜${x.title}](${x.url})：${x.kind}；${x.note}`).join('\n')}
+${resources.map(x => `- [${x.vendor}｜${x.title}](${x.url})：${x.kind}；${x.note}（${x.access}，核验 ${x.checked}）${x.backupUrl ? `；[备用入口](${x.backupUrl})` : ''}`).join('\n')}
 
 ## 网站
 
@@ -64,6 +65,45 @@ ${resources.map(x => `- [${x.vendor}｜${x.title}](${x.url})：${x.kind}；${x.n
   fs.writeFileSync(path.join(vaultDir, '案例', `${clean(item.title)}.md`), body);
 }
 
-const index = `# 半导体应用与标准知识系统\n\n版本：${kb.meta.version}\n\n更新：${kb.meta.updated}\n\n## P1案例\n\n${kb.cases.map(x => `- [[案例/${clean(x.title)}|${x.title}]]`).join('\n')}\n`;
+for (const item of kb.topologies) {
+  const resources = item.resources.map(id => kb.resources.find(s => s.id === id)).filter(Boolean);
+  const cases = item.cases.map(id => kb.cases.find(c => c.id === id)).filter(Boolean);
+  const body = `---
+id: ${item.id}
+title: "${item.name}"
+category: "${item.category}"
+voltage: "${item.voltage}"
+updated: ${kb.meta.updated}
+tags: [共用拓扑, ${item.category}]
+---
+
+# ${item.name}
+
+> ${item.summary}
+
+## 关键器件
+
+${item.devices.map(x => `- ${x}`).join('\n')}
+
+## 保护位置与边界
+
+${item.protection}
+
+## 关联案例
+
+${cases.length ? cases.map(x => `- [[案例/${clean(x.title)}|${x.title}]]`).join('\n') : '- 暂无P1黄金案例；网站中的拓扑图可独立学习。'}
+
+## 规格书、模型与论文
+
+${resources.map(x => `- [${x.vendor}｜${x.title}](${x.url})：${x.kind}；${x.note}（${x.access}，核验 ${x.checked}）${x.backupUrl ? `；[备用入口](${x.backupUrl})` : ''}`).join('\n')}
+
+## 网站
+
+[打开器件级参考拓扑](https://winxinkevin.github.io/tvs-circuit-web/?topology=${item.id})
+`;
+  fs.writeFileSync(path.join(vaultDir, '拓扑', `${clean(item.name)}.md`), body);
+}
+
+const index = `# 半导体应用与标准知识系统\n\n版本：${kb.meta.version}\n\n更新：${kb.meta.updated}\n\n## 24类共用拓扑\n\n${kb.topologies.map(x => `- [[拓扑/${clean(x.name)}|${x.name}]]`).join('\n')}\n\n## P1案例\n\n${kb.cases.map(x => `- [[案例/${clean(x.title)}|${x.title}]]`).join('\n')}\n`;
 fs.writeFileSync(path.join(vaultDir, '首页.md'), index);
-console.log(`Generated ${kb.cases.length} cases and browser data.`);
+console.log(`Generated ${kb.topologies.length} topologies, ${kb.cases.length} cases and browser data.`);

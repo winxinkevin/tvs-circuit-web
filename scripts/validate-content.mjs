@@ -21,7 +21,7 @@ expect(kb.cases.length === 8, `P1案例应为8个，实际${kb.cases.length}个`
 for (const [label, items] of Object.entries({
   领域: kb.domains,
   电压域: kb.voltageDomains.map((name, id) => ({ id, name })),
-  拓扑: kb.topologies.map((name, id) => ({ id, name })),
+  拓扑: kb.topologies,
   标准: kb.standards,
   资源: kb.resources,
   案例: kb.cases
@@ -30,6 +30,17 @@ for (const [label, items] of Object.entries({
 const domainIds = new Set(kb.domains.map(x => x.id));
 const standardIds = new Set(kb.standards.map(x => x.id));
 const resourceIds = new Set(kb.resources.map(x => x.id));
+const caseIds = new Set(kb.cases.map(x => x.id));
+
+for (const item of kb.topologies) {
+  expect(item.name && item.category && item.voltage && item.summary, `${item.id}缺少拓扑基础字段`);
+  expect(item.drawing, `${item.id}缺少电路图ID`);
+  expect(item.devices.length >= 3, `${item.id}关键器件少于3类`);
+  expect(item.protection, `${item.id}缺少保护位置说明`);
+  expect(item.resources.length >= 1, `${item.id}缺少证据资源`);
+  for (const id of item.resources) expect(resourceIds.has(id), `${item.id}引用了不存在的资源：${id}`);
+  for (const id of item.cases) expect(caseIds.has(id), `${item.id}引用了不存在的案例：${id}`);
+}
 
 for (const item of kb.cases) {
   expect(domainIds.has(item.domain), `${item.id}引用了不存在的领域：${item.domain}`);
@@ -44,6 +55,11 @@ for (const item of kb.cases) {
 
 for (const item of [...kb.standards, ...kb.resources]) {
   expect(/^https:\/\//.test(item.url), `${item.id}不是HTTPS直达链接`);
+}
+for (const item of kb.resources) {
+  expect(item.access, `${item.id}缺少访问状态`);
+  expect(/^\d{4}-\d{2}-\d{2}$/.test(item.checked), `${item.id}缺少链接核验日期`);
+  if (item.backupUrl) expect(/^https:\/\//.test(item.backupUrl), `${item.id}备用入口不是HTTPS链接`);
 }
 
 const browserData = fs.readFileSync(path.join(root, 'dist', 'data', 'p0p1-kb.js'), 'utf8');
