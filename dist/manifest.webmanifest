@@ -1,0 +1,9 @@
+{
+  "name": "半导体应用与标准知识系统",
+  "short_name": "半导体应用",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#071b2b",
+  "theme_color": "#071b2b",
+  "lang": "zh-CN"
+}
